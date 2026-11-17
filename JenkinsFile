@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master',
+                url: 'https://github.com/jenkins-docs/simple-java-maven-app.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn clean compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                bat 'mvn package'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat '''
+                if not exist deploy mkdir deploy
+                copy target\\*.jar deploy\\
+                '''
+            }
+        }
+    }
+}
