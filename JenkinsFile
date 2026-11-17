@@ -5,25 +5,25 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'master',
-                url: 'https://github.com/jenkins-docs/simple-java-maven-app.git'
+                    url: 'https://github.com/jenkins-docs/simple-java-maven-app.git'
             }
         }
 
         stage('Build') {
             steps {
-                bat 'mvn clean compile'
+                bat '"C:\\apache-maven-3.10.1\\bin\\mvn.cmd" clean compile'
             }
         }
 
         stage('Test') {
             steps {
-                bat 'mvn test'
+                bat '"C:\\apache-maven-3.10.1\\bin\\mvn.cmd" test'
             }
         }
 
         stage('Package') {
             steps {
-                bat 'mvn package'
+                bat '"C:\\apache-maven-3.10.1\\bin\\mvn.cmd" package'
             }
         }
 
