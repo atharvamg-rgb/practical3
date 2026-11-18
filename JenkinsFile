@@ -1,39 +1,54 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven3'
+    }
+
+    environment {
+        DEPLOY_DIR = 'C:\\deploy'
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master',
-                    url: 'https://github.com/jenkins-docs/simple-java-maven-app.git'
+                checkout scm
             }
         }
-
         stage('Build') {
             steps {
-                bat '"C:\\apache-maven-3.10.1\\bin\\mvn.cmd" clean compile'
+                bat 'mvn clean compile'
             }
         }
-
         stage('Test') {
             steps {
-                bat '"C:\\apache-maven-3.10.1\\bin\\mvn.cmd" test'
+                bat 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
             }
         }
-
         stage('Package') {
             steps {
-                bat '"C:\\apache-maven-3.10.1\\bin\\mvn.cmd" package'
+                bat 'mvn package -DskipTests'
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
-
         stage('Deploy') {
             steps {
                 bat '''
-                if not exist deploy mkdir deploy
-                copy target\\*.jar deploy\\
+                    if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
+                    copy /Y target\\*.jar "%DEPLOY_DIR%\\"
+                    dir "%DEPLOY_DIR%"
                 '''
             }
         }
+    }
+
+    post {
+        success { echo 'Pipeline completed successfully!' }
+        failure { echo 'Pipeline failed.' }
     }
 }
